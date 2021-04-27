@@ -4,6 +4,7 @@ Simple C++ code to benchmark fast division algorithms relying on constant diviso
 
 The code is a companion to the paper [Integer Division by Constants: Optimal Bounds](https://arxiv.org/abs/2012.12369) in the sense that it illustrates the results. We are not claiming that this code, as is, is faster than your compiler generated assembly. Thus it should be viewed as a research artefact.
 
+
 ## Usage
 
 The code is made of a single header file (`fast_division.h`).
@@ -96,58 +97,12 @@ The variable `x` is of type `uint32_t`.
         mul     x8, x8, x9
         lsr     x0, x8, #48
 ```
+## Further reading and code
 
-## Assembly ouputs (LLVM, ARM) for divisor = 17
 
-The variable `x` is of type `uint32_t`.
+For a practical library with performance claims, see [fastmod](https://github.com/lemire/fastmod) and the manuscript:
 
-`x/19` compiles to:
-
-```asm
-        mov     w8, #27595
-        movk    w8, #44840, lsl #16
-        umull   x8, w0, w8
-        lsr     x8, x8, #32
-        sub     w9, w0, w8
-        add     w8, w8, w9, lsr #1
-        lsr     w0, w8, #4
-```
-
-`divide32<19>::quotient(x)` compiles to:
-
-```asm
-        mov     w8, #61681
-        movk    w8, #61680, lsl #16
-        umull   x8, w0, w8
-        lsr     x0, x8, #36
-```
-
-`x%19` compiles to:
-
-```asm
-        mov     w8, #27595
-        movk    w8, #44840, lsl #16
-        umull   x8, w0, w8
-        lsr     x8, x8, #32
-        sub     w9, w0, w8
-        add     w8, w8, w9, lsr #1
-        lsr     w8, w8, #4
-        mov     w9, #19
-        msub    w0, w8, w9, w0
-        ret
-```
-
-`divide32<19>::remainder(x)` compiles to:
-
-```asm
-        mov     w8, #13797
-        movk    w8, #55188, lsl #16
-        umaddl  x8, w0, w8, x8
-        and     x8, x8, #0xfffffffff
-        mov     w9, #19
-        mul     x8, x8, x9
-        lsr     x0, x8, #36
-```
+- Daniel Lemire, Owen Kaser, Nathan Kurz, [Faster Remainder by Direct Computation: Applications to Compilers and Software Libraries](https://arxiv.org/abs/1902.01961), Software: Practice and Experience 49 (6), 2019
 
 ## Limitations and requirements
 
