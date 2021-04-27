@@ -16,6 +16,12 @@ assert(fast_division::divide32<divisor>::remainder(n) == n % divisor)
 assert(fast_division::divide32<divisor>::is_divisible(n) == (n % divisor == 0));
 ```
 
+## Benchmarks
+
+```
+❯ cmake -B build && cmake --build build
+./build/benchmark/benchmark
+```
 
 ## Limitations and requirements
 

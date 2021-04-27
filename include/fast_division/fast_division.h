@@ -34,20 +34,20 @@ struct divide32 {
   constexpr static bool is_power_2 = ((divisor & (divisor - 1)) == 0);
   constexpr static uint32_t power_2_mask = ~uint32_t(int32_t(0x80000000) >> leading_zeroes);
   
-  static uint64_t quotient(uint32_t n) {
+  static inline uint64_t quotient(uint32_t n) noexcept {
       if(is_power_2) { return n >> log2_divisor; }
       return internal_product(n) >> (32 + log2_divisor);
   }
-  static uint64_t remainder(uint32_t n) {
+  static inline uint64_t remainder(uint32_t n) noexcept {
       if(is_power_2) { return n & power_2_mask; }
       return ((internal_product(n)  % m) * uint64_t(divisor)) >> (32 + log2_divisor);
   }
-  static uint64_t is_divisible(uint32_t n) {
+  static inline uint64_t is_divisible(uint32_t n) noexcept {
       if(is_power_2) { return (n & power_2_mask) == 0; }
       return (internal_product(n)  % m) < c;
   }
   private:
-  static uint64_t internal_product(uint32_t n) {
+  static inline uint64_t internal_product(uint32_t n) noexcept {
       if(need_fallback) {
           return (c * n + c);
       } else {
