@@ -30,73 +30,26 @@ assert(fast_division::divide32<divisor>::is_divisible(n) == (n % divisor == 0));
 On an Apple M1 processor with clang 12, we get:
 
 ```
-❯ ./benchmark/benchmark
+❯ ./build/benchmark/benchmark
 divisor = 19
-std division                            :     0.94 ns/ops (+/- 1.0 %)
-fast division                           :     0.44 ns/ops (+/- 1.9 %)
-std remainder                           :     0.78 ns/ops (+/- 0.5 %)
-fast remainder                          :     0.71 ns/ops (+/- 0.5 %)
+std division                            :     0.94 ns/ops (+/- 1.3 %)
+fast division                           :     0.44 ns/ops (+/- 1.4 %)
+std remainder                           :     0.78 ns/ops (+/- 1.7 %)
+fast remainder                          :     0.70 ns/ops (+/- 1.9 %)
 divisor = 67910
-std division                            :     0.86 ns/ops (+/- 0.7 %)
-fast division                           :     0.44 ns/ops (+/- 0.6 %)
+std division                            :     0.85 ns/ops (+/- 1.4 %)
+fast division                           :     0.44 ns/ops (+/- 0.7 %)
 std remainder                           :     0.65 ns/ops (+/- 0.5 %)
-fast remainder                          :     0.63 ns/ops (+/- 0.8 %)
+fast remainder                          :     0.62 ns/ops (+/- 2.6 %)
 divisor = 4096
-std division                            :     0.60 ns/ops (+/- 1.6 %)
-fast division                           :     0.60 ns/ops (+/- 2.1 %)
+std division                            :     0.60 ns/ops (+/- 1.9 %)
+fast division                           :     0.60 ns/ops (+/- 1.7 %)
 std remainder                           :     0.75 ns/ops (+/- 0.5 %)
-fast remainder                          :     0.74 ns/ops (+/- 1.3 %)
+fast remainder                          :     0.74 ns/ops (+/- 1.7 %)
 ```
 
 Results will vary depending on your compiler and processor.
 
-## Assembly ouputs (LLVM, ARM) for divisor = 67910
-
-The variable `x` is of type `uint32_t`.
-
-`x/67910` compiles to:
-
-```asm
-        mov     w8, #64905
-        movk    w8, #63244, lsl #16
-        umull   x8, w0, w8
-        lsr     x0, x8, #48
-```
-
-`divide32<67910>::quotient(x)` compiles to:
-
-```asm
-        mov     w8, #64905
-        movk    w8, #63244, lsl #16
-        umull   x8, w0, w8
-        lsr     x0, x8, #48
-```
-
-`x%67910` compiles to:
-
-```asm
-        mov     w8, #64905
-        movk    w8, #63244, lsl #16
-        umull   x8, w0, w8
-        mov     w9, #2374
-        lsr     x8, x8, #48
-        movk    w9, #1, lsl #16
-        msub    w0, w8, w9, w0
-        ret
-```
-
-`divide32<67910>::remainder(x)` compiles to:
-
-```asm
-        mov     w8, #64905
-        movk    w8, #63244, lsl #16
-        umull   x8, w0, w8
-        mov     w9, #2374
-        and     x8, x8, #0xffffffffffff
-        movk    w9, #1, lsl #16
-        mul     x8, x8, x9
-        lsr     x0, x8, #48
-```
 ## Further reading and code
 
 
