@@ -1,9 +1,12 @@
 # fast_division
 Simple C++ code to benchmark fast division algorithms relying on constant divisors.
 
-The code is made of a single header file (`fast_division.h`).
+
+The code is a companion to the paper [Integer Division by Constants: Optimal Bounds](https://arxiv.org/abs/2012.12369) in the sense that it illustrates the results. We are not claiming that this code, as is, is faster than your compiler generated assembly. Thus it should be viewed as a research artefact.
 
 ## Usage
+
+The code is made of a single header file (`fast_division.h`).
 
 Copy `fast_division.h` in your C++ project. You can then use it as follows.
 
