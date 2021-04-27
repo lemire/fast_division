@@ -42,7 +42,7 @@ struct divide32 {
   }
   static inline uint64_t remainder(uint32_t n) noexcept {
       if(is_power_2) { return n & power_2_mask; }
-      return ((internal_product(n) % m) * __uint128_t(divisor)) >> (32 + log2_divisor);
+      return uint64_t(((internal_product(n) % m) * __uint128_t(divisor)) >> (32 + log2_divisor));
   }
   static inline uint64_t is_divisible(uint32_t n) noexcept {
       if(is_power_2) { return (n & power_2_mask) == 0; }
