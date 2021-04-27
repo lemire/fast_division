@@ -4,7 +4,7 @@
 #include <cmath>
 #include <chrono>
 const static size_t volume = 1000000;
-
+uint32_t buffer[volume+1];
 
 #ifdef __GNUC__
 #define GCC_COMPILER
@@ -17,14 +17,58 @@ template<uint32_t divisor>
 __attribute__ ((noinline))
 #ifdef GCC_COMPILER
 __attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
 #endif
-uint32_t std_div() {
+void std_div() {
+#pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
+  for(uint32_t n = 1; n < volume + 1; n++) {
+    if(buffer[n] != ( n / divisor)) { throw std::runtime_error("bug"); }
+  }
+}
+
+template<uint32_t divisor>
+void compute_div() {
+  for(uint32_t n = 1; n < volume + 1; n++) {
+    buffer[n] = n / divisor;
+  }
+}
+
+template<uint32_t divisor>
+__attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
+#endif
+void fast_div() {
   uint32_t sum = 0;
 #pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
-    sum += n / divisor;
+    if(buffer[n] != fast_division::divide32<divisor>::quotient(n)) { throw std::runtime_error("bug"); }
   }
-  return sum;
+}
+
+
+template<uint32_t divisor>
+void compute_mod() {
+  for(uint32_t n = 1; n < volume + 1; n++) {
+    buffer[n] = n % divisor;
+  }
+}
+
+template<uint32_t divisor>
+__attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
+#endif
+void std_mod() {
+#pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
+  for(uint32_t n = 1; n < volume + 1; n++) {
+    if(buffer[n] != (n % divisor)) { throw std::runtime_error("bug"); }
+  }
 }
 
 
@@ -32,45 +76,14 @@ template<uint32_t divisor>
 __attribute__ ((noinline))
 #ifdef GCC_COMPILER
 __attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
 #endif
-uint32_t fast_div() {
-  uint32_t sum = 0;
+void fast_mod() {
 #pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
-    sum += fast_division::divide32<divisor>::quotient(n);
+    if(buffer[n] != fast_division::divide32<divisor>::remainder(n)) { throw std::runtime_error("bug"); }
   }
-  return sum;
-}
-
-
-
-template<uint32_t divisor>
-__attribute__ ((noinline))
-#ifdef GCC_COMPILER
-__attribute__((optimize("no-tree-vectorize")))
-#endif
-uint32_t std_mod() {
-  uint32_t sum = 0;
-#pragma clang loop vectorize(disable)
-  for(uint32_t n = 1; n < volume + 1; n++) {
-    sum += n % divisor;
-  }
-  return sum;
-}
-
-
-template<uint32_t divisor>
-__attribute__ ((noinline))
-#ifdef GCC_COMPILER
-__attribute__((optimize("no-tree-vectorize")))
-#endif
-uint32_t fast_mod() {
-  uint32_t sum = 0;
-#pragma clang loop vectorize(disable)
-  for(uint32_t n = 1; n < volume + 1; n++) {
-    sum += fast_division::divide32<divisor>::remainder(n);
-  }
-  return sum;
 }
 
 template <class T>
@@ -80,7 +93,7 @@ std::pair<double, double> time_it_ns(T const &function, size_t repeat) {
   double min_value = 1e300;
   for (size_t i = 0; i < repeat; i++) {
     t1 = std::chrono::high_resolution_clock::now();
-    if(function() == 0) { std::cout << "got 0" << std::endl;}
+    function();
     t2 = std::chrono::high_resolution_clock::now();
     double dif =
         std::chrono::duration_cast<std::chrono::nanoseconds>(t2 - t1).count();
@@ -103,8 +116,10 @@ template<uint32_t divisor>
 void process() {
   size_t repeat = 1000;
   std::cout << "divisor = " << divisor << std::endl;
+  compute_div<divisor>();
   pretty_print(volume, "std division", time_it_ns(std_div<divisor>, repeat));
   pretty_print(volume, "fast division", time_it_ns(fast_div<divisor>, repeat));
+  compute_mod<divisor>();
   pretty_print(volume, "std remainder", time_it_ns(std_mod<divisor>, repeat));
   pretty_print(volume, "fast remainder", time_it_ns(fast_mod<divisor>, repeat));
 }

@@ -12,13 +12,23 @@ void test() {
         std::cout << "quotient: " << fast_division::divide32<divisor>::quotient(n) << " expected: "<< n / divisor <<std::endl;
         std::cout << "remainder: " << fast_division::divide32<divisor>::remainder(n) << " expected: "<< n % divisor <<std::endl;
         std::cout << "multiple: " << fast_division::divide32<divisor>::is_divisible(n) << " expected: "<< (n % divisor == 0) <<std::endl;
-        std::cerr << quotient_ok << " " << remainder_ok << std::endl;
+
+        std::cout << "need_fallback = " << fast_division::divide32<divisor>::need_fallback << std::endl;
+        std::cout << "is_power_2    = " << fast_division::divide32<divisor>::is_power_2 << std::endl;
+        std::cout << "c             = " << fast_division::divide32<divisor>::c << std::endl;
+        std::cout << "leading_zeroes= " << fast_division::divide32<divisor>::leading_zeroes << std::endl;
+        std::cout << "log2_divisor  = " << fast_division::divide32<divisor>::log2_divisor << std::endl;
+        std::cout << "m             = " << fast_division::divide32<divisor>::m << std::endl;
+
         abort();
     }
   }
 }
 
 int main() {
+    test<1000000001>();
+    test<1232445>();
+    test<67910>();
     test<8>();
     test<19>();
     test<461>();

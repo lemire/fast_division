@@ -3,6 +3,7 @@
 #define FAST_DIVISION_H
 
 #include <cstdint>
+#include <iostream>
 
 namespace fast_division {
 template <uint32_t divisor>
@@ -13,7 +14,8 @@ struct divide32 {
   constexpr static uint32_t N = 0xFFFFFFFF; // max value
 
   // General case (multiply-shift)
-  constexpr static uint64_t m = uint64_t(1) <<  (log2_divisor + 32);
+  // 
+  constexpr static uint64_t m = uint64_t(1) << (log2_divisor + 32);
   constexpr static uint64_t c_floor = m / divisor;
 
   constexpr static uint64_t c_ceiling = c_floor + 1;
@@ -40,11 +42,11 @@ struct divide32 {
   }
   static inline uint64_t remainder(uint32_t n) noexcept {
       if(is_power_2) { return n & power_2_mask; }
-      return ((internal_product(n)  % m) * uint64_t(divisor)) >> (32 + log2_divisor);
+      return ((internal_product(n) % m) * __uint128_t(divisor)) >> (32 + log2_divisor);
   }
   static inline uint64_t is_divisible(uint32_t n) noexcept {
       if(is_power_2) { return (n & power_2_mask) == 0; }
-      return (internal_product(n)  % m) < c;
+      return (internal_product(n) % m) < c;
   }
   private:
   static inline uint64_t internal_product(uint32_t n) noexcept {

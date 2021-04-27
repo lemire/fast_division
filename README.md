@@ -26,25 +26,125 @@ assert(fast_division::divide32<divisor>::is_divisible(n) == (n % divisor == 0));
 On an Apple M1 processor with clang 12, we get:
 
 ```
-❯ ./build/benchmark/benchmark
+❯ ./benchmark/benchmark
 divisor = 19
-std division                            :     0.56 ns/ops (+/- 7.3 %)
-fast division                           :     0.27 ns/ops (+/- 1.1 %)
-std remainder                           :     0.69 ns/ops (+/- 0.6 %)
-fast remainder                          :     0.39 ns/ops (+/- 1.3 %)
+std division                            :     0.94 ns/ops (+/- 1.0 %)
+fast division                           :     0.44 ns/ops (+/- 1.9 %)
+std remainder                           :     0.78 ns/ops (+/- 0.5 %)
+fast remainder                          :     0.71 ns/ops (+/- 0.5 %)
 divisor = 67910
-std division                            :     0.62 ns/ops (+/- 0.9 %)
-fast division                           :     0.26 ns/ops (+/- 0.9 %)
-std remainder                           :     0.62 ns/ops (+/- 0.6 %)
-fast remainder                          :     0.39 ns/ops (+/- 1.1 %)
+std division                            :     0.86 ns/ops (+/- 0.7 %)
+fast division                           :     0.44 ns/ops (+/- 0.6 %)
+std remainder                           :     0.65 ns/ops (+/- 0.5 %)
+fast remainder                          :     0.63 ns/ops (+/- 0.8 %)
 divisor = 4096
-std division                            :     0.36 ns/ops (+/- 0.9 %)
-fast division                           :     0.36 ns/ops (+/- 0.9 %)
-std remainder                           :     0.28 ns/ops (+/- 4.1 %)
-fast remainder                          :     0.28 ns/ops (+/- 5.2 %)
+std division                            :     0.60 ns/ops (+/- 1.6 %)
+fast division                           :     0.60 ns/ops (+/- 2.1 %)
+std remainder                           :     0.75 ns/ops (+/- 0.5 %)
+fast remainder                          :     0.74 ns/ops (+/- 1.3 %)
 ```
 
 Results will vary depending on your compiler and processor.
+
+## Assembly ouputs (LLVM, ARM) for divisor = 67910
+
+The variable `x` is of type `uint32_t`.
+
+`x/67910` compiles to:
+
+```asm
+        mov     w8, #64905
+        movk    w8, #63244, lsl #16
+        umull   x8, w0, w8
+        lsr     x0, x8, #48
+```
+
+`divide32<67910>::quotient(x)` compiles to:
+
+```asm
+        mov     w8, #64905
+        movk    w8, #63244, lsl #16
+        umull   x8, w0, w8
+        lsr     x0, x8, #48
+```
+
+`x%67910` compiles to:
+
+```asm
+        mov     w8, #64905
+        movk    w8, #63244, lsl #16
+        umull   x8, w0, w8
+        mov     w9, #2374
+        lsr     x8, x8, #48
+        movk    w9, #1, lsl #16
+        msub    w0, w8, w9, w0
+        ret
+```
+
+`divide32<67910>::remainder(x)` compiles to:
+
+```asm
+        mov     w8, #64905
+        movk    w8, #63244, lsl #16
+        umull   x8, w0, w8
+        mov     w9, #2374
+        and     x8, x8, #0xffffffffffff
+        movk    w9, #1, lsl #16
+        mul     x8, x8, x9
+        lsr     x0, x8, #48
+```
+
+## Assembly ouputs (LLVM, ARM) for divisor = 17
+
+The variable `x` is of type `uint32_t`.
+
+`x/19` compiles to:
+
+```asm
+        mov     w8, #27595
+        movk    w8, #44840, lsl #16
+        umull   x8, w0, w8
+        lsr     x8, x8, #32
+        sub     w9, w0, w8
+        add     w8, w8, w9, lsr #1
+        lsr     w0, w8, #4
+```
+
+`divide32<19>::quotient(x)` compiles to:
+
+```asm
+        mov     w8, #61681
+        movk    w8, #61680, lsl #16
+        umull   x8, w0, w8
+        lsr     x0, x8, #36
+```
+
+`x%19` compiles to:
+
+```asm
+        mov     w8, #27595
+        movk    w8, #44840, lsl #16
+        umull   x8, w0, w8
+        lsr     x8, x8, #32
+        sub     w9, w0, w8
+        add     w8, w8, w9, lsr #1
+        lsr     w8, w8, #4
+        mov     w9, #19
+        msub    w0, w8, w9, w0
+        ret
+```
+
+`divide32<19>::remainder(x)` compiles to:
+
+```asm
+        mov     w8, #13797
+        movk    w8, #55188, lsl #16
+        umaddl  x8, w0, w8, x8
+        and     x8, x8, #0xfffffffff
+        mov     w9, #19
+        mul     x8, x8, x9
+        lsr     x0, x8, #36
+```
 
 ## Limitations and requirements
 
