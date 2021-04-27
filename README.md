@@ -5,7 +5,16 @@ The code is made of a single header file (`fast_division.h`).
 
 ## Usage
 
-Copy `fast_division.h` in your C++ project.
+Copy `fast_division.h` in your C++ project. You can then use it as follows.
+
+```C++
+#include "fast_division/fast_division.h"
+
+// for any compile-time constant 'divisor' we have:
+assert(fast_division::divide32<divisor>::quotient(n) == n / divisor);
+assert(fast_division::divide32<divisor>::remainder(n) == n % divisor)
+assert(fast_division::divide32<divisor>::is_divisible(n) == (n % divisor == 0));
+```
 
 
 ## Limitations and requirements
