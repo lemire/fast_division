@@ -73,35 +73,6 @@ uint32_t fast_mod() {
   return sum;
 }
 
-template<uint32_t divisor>
-__attribute__ ((noinline))
-#ifdef GCC_COMPILER
-__attribute__((optimize("no-tree-vectorize")))
-#endif
-uint32_t std_divtest() {
-  uint32_t sum = 0;
-#pragma clang loop vectorize(disable)
-  for(uint32_t n = 1; n < volume + 1; n++) {
-    sum += (n % divisor == 0);
-  }
-  return sum;
-}
-
-
-template<uint32_t divisor>
-__attribute__ ((noinline))
-#ifdef GCC_COMPILER
-__attribute__((optimize("no-tree-vectorize")))
-#endif
-uint32_t fast_divtest() {
-  uint32_t sum = 0;
-#pragma clang loop vectorize(disable)
-  for(uint32_t n = 1; n < volume + 1; n++) {
-    sum += fast_division::divide32<divisor>::is_divisible(n);
-  }
-  return sum;
-}
-
 template <class T>
 std::pair<double, double> time_it_ns(T const &function, size_t repeat) {
   std::chrono::high_resolution_clock::time_point t1, t2;
@@ -136,8 +107,6 @@ void process() {
   pretty_print(volume, "fast division", time_it_ns(fast_div<divisor>, repeat));
   pretty_print(volume, "std remainder", time_it_ns(std_mod<divisor>, repeat));
   pretty_print(volume, "fast remainder", time_it_ns(fast_mod<divisor>, repeat));
-  pretty_print(volume, "std divisibility test", time_it_ns(std_divtest<divisor>, repeat));
-  pretty_print(volume, "fast divisibility test", time_it_ns(fast_divtest<divisor>, repeat));
 }
 
 int main() {
