@@ -5,10 +5,22 @@
 #include <chrono>
 const static size_t volume = 1000000;
 
+
+#ifdef __GNUC__
+#define GCC_COMPILER
+#endif 
+#ifdef __clang__
+#undef GCC_COMPILER
+#endif
+
 template<uint32_t divisor>
 __attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+#endif
 uint32_t std_div() {
-  volatile uint32_t sum = 0;
+  uint32_t sum = 0;
+#pragma clang loop vectorize(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
     sum += n / divisor;
   }
@@ -18,8 +30,12 @@ uint32_t std_div() {
 
 template<uint32_t divisor>
 __attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+#endif
 uint32_t fast_div() {
-  volatile uint32_t sum = 0;
+  uint32_t sum = 0;
+#pragma clang loop vectorize(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
     sum += fast_division::divide32<divisor>::quotient(n);
   }
@@ -30,8 +46,12 @@ uint32_t fast_div() {
 
 template<uint32_t divisor>
 __attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+#endif
 uint32_t std_mod() {
-  volatile uint32_t sum = 0;
+  uint32_t sum = 0;
+#pragma clang loop vectorize(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
     sum += n % divisor;
   }
@@ -41,8 +61,12 @@ uint32_t std_mod() {
 
 template<uint32_t divisor>
 __attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+#endif
 uint32_t fast_mod() {
-  volatile uint32_t sum = 0;
+  uint32_t sum = 0;
+#pragma clang loop vectorize(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
     sum += fast_division::divide32<divisor>::remainder(n);
   }
@@ -51,8 +75,12 @@ uint32_t fast_mod() {
 
 template<uint32_t divisor>
 __attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+#endif
 uint32_t std_divtest() {
-  volatile uint32_t sum = 0;
+  uint32_t sum = 0;
+#pragma clang loop vectorize(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
     sum += (n % divisor == 0);
   }
@@ -62,8 +90,12 @@ uint32_t std_divtest() {
 
 template<uint32_t divisor>
 __attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+#endif
 uint32_t fast_divtest() {
-  volatile uint32_t sum = 0;
+  uint32_t sum = 0;
+#pragma clang loop vectorize(disable)
   for(uint32_t n = 1; n < volume + 1; n++) {
     sum += fast_division::divide32<divisor>::is_divisible(n);
   }
