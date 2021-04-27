@@ -28,27 +28,23 @@ On an Apple M1 processor with clang 12, we get:
 ```
 ❯ ./build/benchmark/benchmark
 divisor = 19
-std division                            :     0.58 ns/ops (+/- 1.5 %)
+std division                            :     0.56 ns/ops (+/- 7.3 %)
 fast division                           :     0.27 ns/ops (+/- 1.1 %)
-std remainder                           :     0.72 ns/ops (+/- 0.4 %)
-fast remainder                          :     0.39 ns/ops (+/- 2.0 %)
-std divisibility test                   :     0.74 ns/ops (+/- 1.7 %)
-fast divisibility test                  :     0.32 ns/ops (+/- 0.9 %)
+std remainder                           :     0.69 ns/ops (+/- 0.6 %)
+fast remainder                          :     0.39 ns/ops (+/- 1.3 %)
 divisor = 67910
-std division                            :     0.64 ns/ops (+/- 1.4 %)
-fast division                           :     0.27 ns/ops (+/- 2.0 %)
-std remainder                           :     0.65 ns/ops (+/- 0.4 %)
-fast remainder                          :     0.40 ns/ops (+/- 1.5 %)
-std divisibility test                   :     0.65 ns/ops (+/- 0.6 %)
-fast divisibility test                  :     0.27 ns/ops (+/- 8.1 %)
+std division                            :     0.62 ns/ops (+/- 0.9 %)
+fast division                           :     0.26 ns/ops (+/- 0.9 %)
+std remainder                           :     0.62 ns/ops (+/- 0.6 %)
+fast remainder                          :     0.39 ns/ops (+/- 1.1 %)
 divisor = 4096
-std division                            :     0.38 ns/ops (+/- 0.6 %)
-fast division                           :     0.38 ns/ops (+/- 0.6 %)
-std remainder                           :     0.29 ns/ops (+/- 5.2 %)
-fast remainder                          :     0.29 ns/ops (+/- 2.5 %)
-std divisibility test                   :     0.16 ns/ops (+/- 0.4 %)
-fast divisibility test                  :     0.16 ns/ops (+/- 0.5 %)
+std division                            :     0.36 ns/ops (+/- 0.9 %)
+fast division                           :     0.36 ns/ops (+/- 0.9 %)
+std remainder                           :     0.28 ns/ops (+/- 4.1 %)
+fast remainder                          :     0.28 ns/ops (+/- 5.2 %)
 ```
+
+Results will vary depending on your compiler and processor.
 
 ## Limitations and requirements
 
