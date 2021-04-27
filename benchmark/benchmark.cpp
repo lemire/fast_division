@@ -2,7 +2,7 @@
 #include "fast_division/fast_division.h"
 #include <iostream>
 #include <cmath>
-
+#include <chrono>
 const static size_t volume = 1000000;
 
 template<uint32_t divisor>
@@ -111,4 +111,5 @@ void process() {
 int main() {
     process<19>();
     process<67910>();
+    process<4096>();
 }
