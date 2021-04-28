@@ -127,5 +127,6 @@ void process() {
 int main() {
     process<19>();
     process<67910>();
+    process<123456>();
     process<4096>();
 }
