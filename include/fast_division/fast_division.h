@@ -13,6 +13,11 @@ struct divide32 {
   constexpr static int log2_divisor = 31 - leading_zeroes;
   constexpr static uint32_t N = 0xFFFFFFFF; // max value
 
+  constexpr static bool overflow = log2_divisor + 32 + log2_divisor + 1 >= 64;
+  // Overflow case
+  constexpr static uint64_t m_overflow = uint64_t(-1);
+  constexpr static uint64_t c_overflow_ceiling = m_overflow / divisor + 1;
+
   // General case (multiply-shift)
   // 
   constexpr static uint64_t m = uint64_t(1) << (log2_divisor + 32);
@@ -36,19 +41,19 @@ struct divide32 {
   constexpr static bool is_power_2 = ((divisor & (divisor - 1)) == 0);
   constexpr static uint32_t power_2_mask = ~uint32_t(int32_t(0x80000000) >> leading_zeroes);
   
-  static inline uint64_t quotient(uint32_t n) noexcept {
+  static inline uint32_t quotient(uint32_t n) noexcept {
       if(is_power_2) { return n >> log2_divisor; }
       return internal_product(n) >> (32 + log2_divisor);
   }
-  static inline uint64_t remainder(uint32_t n) noexcept {
+  static inline uint32_t remainder(uint32_t n) noexcept {
       if(is_power_2) { return n & power_2_mask; }
-      if(log2_divisor + 32 + log2_divisor + 1 >= 64) {
-        return uint64_t(((internal_product(n) % m) * __uint128_t(divisor)) >> (32 + log2_divisor));
+      if(overflow) {
+          return ((c_overflow_ceiling * n) * __uint128_t(divisor)) >> 64;
       } else {
-        return uint64_t(((internal_product(n) % m) * divisor) >> (32 + log2_divisor));
+        return uint32_t(((internal_product(n) % m) * divisor) >> (32 + log2_divisor));
       }
   }
-  static inline uint64_t is_divisible(uint32_t n) noexcept {
+  static inline bool is_divisible(uint32_t n) noexcept {
       if(is_power_2) { return (n & power_2_mask) == 0; }
       return (internal_product(n) % m) < c;
   }

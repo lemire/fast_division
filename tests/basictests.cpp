@@ -19,6 +19,8 @@ void test() {
         std::cout << "leading_zeroes= " << fast_division::divide32<divisor>::leading_zeroes << std::endl;
         std::cout << "log2_divisor  = " << fast_division::divide32<divisor>::log2_divisor << std::endl;
         std::cout << "m             = " << fast_division::divide32<divisor>::m << std::endl;
+        std::cout << "overflow      = " << fast_division::divide32<divisor>::overflow << std::endl;
+        std::cout << "c_overflow_ceiling      = " << uint64_t(fast_division::divide32<divisor>::c_overflow_ceiling) << std::endl;
 
         abort();
     }
