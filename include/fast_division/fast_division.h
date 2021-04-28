@@ -43,12 +43,12 @@ struct divide32 {
   
   static inline uint32_t quotient(uint32_t n) noexcept {
       if(is_power_2) { return n >> log2_divisor; }
-      return internal_product(n) >> (32 + log2_divisor);
+      return uint32_t(internal_product(n) >> (32 + log2_divisor));
   }
   static inline uint32_t remainder(uint32_t n) noexcept {
       if(is_power_2) { return n & power_2_mask; }
       if(overflow) {
-          return ((c_overflow_ceiling * n) * __uint128_t(divisor)) >> 64;
+          return uint32_t(((c_overflow_ceiling * n) * __uint128_t(divisor)) >> 64);
       } else {
         return uint32_t(((internal_product(n) % m) * divisor) >> (32 + log2_divisor));
       }
