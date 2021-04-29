@@ -14,9 +14,6 @@ struct divide32 {
   constexpr static uint32_t N = 0xFFFFFFFF; // max value
 
   constexpr static bool overflow = log2_divisor + 32 + log2_divisor + 1 >= 64;
-  // Overflow case
-  constexpr static uint64_t m_overflow = uint64_t(-1);
-  constexpr static uint64_t c_overflow_ceiling = m_overflow / divisor + 1;
 
   // General case (multiply-shift)
   // 
@@ -48,7 +45,7 @@ struct divide32 {
   static inline uint32_t remainder(uint32_t n) noexcept {
       if(is_power_2) { return n & power_2_mask; }
       if(overflow) {
-          return uint32_t(((c_overflow_ceiling * n) * __uint128_t(divisor)) >> 64);
+        return n - quotient(n) * divisor;
       } else {
         return uint32_t(((internal_product(n) % m) * divisor) >> (32 + log2_divisor));
       }

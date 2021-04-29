@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 #include <chrono>
-const static size_t volume = 1000000;
+const static size_t volume = 1024*1024;
 uint32_t buffer[volume+1];
 
 #ifdef __GNUC__
@@ -114,18 +114,34 @@ void pretty_print(size_t number_of_ops, std::string name, std::pair<double,doubl
 
 template<uint32_t divisor>
 void process() {
-  size_t repeat = 1000;
+  size_t repeat = 100;
   std::cout << "divisor = " << divisor << std::endl;
   compute_div<divisor>();
-  pretty_print(volume, "std division", time_it_ns(std_div<divisor>, repeat));
-  pretty_print(volume, "fast division", time_it_ns(fast_div<divisor>, repeat));
+  size_t trial = 2;
+  std::cout << "repeating each measure " << trial << " times." << std::endl;
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "std division", time_it_ns(std_div<divisor>, repeat));
+  }
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "fast division", time_it_ns(fast_div<divisor>, repeat));
+  }   
   compute_mod<divisor>();
-  pretty_print(volume, "std remainder", time_it_ns(std_mod<divisor>, repeat));
-  pretty_print(volume, "fast remainder", time_it_ns(fast_mod<divisor>, repeat));
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "std remainder", time_it_ns(std_mod<divisor>, repeat));
+  }
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "fast remainder", time_it_ns(fast_mod<divisor>, repeat));
+  }
+  std::cout << "==========" << std::endl;
 }
 
 int main() {
-    process<19>();
-    process<123456>();
-    process<4096>();
+  std::cout << "We measure operation throughput." << std::endl; 
+  std::cout << "==========" << std::endl;
+
+  process<19>();
+  process<123456>();
+  //process<4096>();  
+  //process<1024>();  
+
 }
