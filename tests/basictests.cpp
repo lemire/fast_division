@@ -44,7 +44,7 @@ template <uint32_t divisor> void test32() {
 std::ostream &operator<<(std::ostream &dest, __uint128_t value) {
   std::ostream::sentry s(dest);
   if (s) {
-    __uint128_t tmp = value < 0 ? -value : value;
+    __uint128_t tmp = value;
     char buffer[128];
     char *d = std::end(buffer);
     do {

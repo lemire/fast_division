@@ -87,7 +87,7 @@ template <uint64_t divisor> struct divide64 {
   // General case (multiply-shift)
   //
   constexpr static __uint128_t m = __uint128_t(1) << (log2_divisor + 64);
-  constexpr static uint64_t c_floor = m / divisor;
+  constexpr static uint64_t c_floor = uint64_t(m / divisor);
 
   constexpr static uint64_t c_ceiling = c_floor + 1;
 
