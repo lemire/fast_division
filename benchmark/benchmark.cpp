@@ -5,7 +5,7 @@
 #include <chrono>
 const static size_t volume = 1024*1024;
 uint32_t buffer[volume+1];
-
+uint64_t buffer64[volume+1];
 #ifdef __GNUC__
 #define GCC_COMPILER
 #endif 
@@ -86,6 +86,85 @@ void fast_mod() {
   }
 }
 
+
+
+///////////////
+
+
+
+template<uint64_t divisor>
+__attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
+#endif
+void std_div64() {
+#pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
+  for(uint64_t n = 1; n < volume + 1; n++) {
+    if(buffer64[n] != ( n / divisor)) { throw std::runtime_error("bug"); }
+  }
+}
+
+template<uint64_t divisor>
+void compute_div64() {
+  for(uint64_t n = 1; n < volume + 1; n++) {
+    buffer64[n] = n / divisor;
+  }
+}
+
+template<uint64_t divisor>
+__attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
+#endif
+void fast_div64() {
+  uint64_t sum = 0;
+#pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
+  for(uint64_t n = 1; n < volume + 1; n++) {
+    if(buffer64[n] != fast_division::divide64<divisor>::quotient(n)) { throw std::runtime_error("bug"); }
+  }
+}
+
+
+template<uint64_t divisor>
+void compute_mod64() {
+  for(uint64_t n = 1; n < volume + 1; n++) {
+    buffer64[n] = n % divisor;
+  }
+}
+
+template<uint64_t divisor>
+__attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
+#endif
+void std_mod64() {
+#pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
+  for(uint64_t n = 1; n < volume + 1; n++) {
+    if(buffer64[n] != (n % divisor)) { throw std::runtime_error("bug"); }
+  }
+}
+
+
+template<uint64_t divisor>
+__attribute__ ((noinline))
+#ifdef GCC_COMPILER
+__attribute__((optimize("no-tree-vectorize")))
+__attribute__((optimize("no-unroll-loops")))
+#endif
+void fast_mod64() {
+#pragma clang loop vectorize(disable)
+#pragma clang loop unroll(disable)
+  for(uint64_t n = 1; n < volume + 1; n++) {
+    if(buffer64[n] != fast_division::divide64<divisor>::remainder(n)) { throw std::runtime_error("bug"); }
+  }
+}
+
 template <class T>
 std::pair<double, double> time_it_ns(T const &function, size_t repeat) {
   std::chrono::high_resolution_clock::time_point t1, t2;
@@ -113,9 +192,9 @@ void pretty_print(size_t number_of_ops, std::string name, std::pair<double,doubl
 
 
 template<uint32_t divisor>
-void process() {
+void process32() {
   size_t repeat = 100;
-  std::cout << "divisor = " << divisor << std::endl;
+  std::cout << "(32-bit) divisor = " << divisor << std::endl;
   compute_div<divisor>();
   size_t trial = 2;
   std::cout << "repeating each measure " << trial << " times." << std::endl;
@@ -135,13 +214,36 @@ void process() {
   std::cout << "==========" << std::endl;
 }
 
+
+
+template<uint64_t divisor>
+void process64() {
+  size_t repeat = 100;
+  std::cout << "(64-bit) divisor = " << divisor << std::endl;
+  compute_div64<divisor>();
+  size_t trial = 2;
+  std::cout << "repeating each measure " << trial << " times." << std::endl;
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "std division", time_it_ns(std_div64<divisor>, repeat));
+  }
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "fast division", time_it_ns(fast_div64<divisor>, repeat));
+  }   
+  compute_mod64<divisor>();
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "std remainder", time_it_ns(std_mod64<divisor>, repeat));
+  }
+  for(size_t i = 0; i < trial; i++) {
+    pretty_print(volume, "fast remainder", time_it_ns(fast_mod64<divisor>, repeat));
+  }
+  std::cout << "==========" << std::endl;
+}
 int main() {
   std::cout << "We measure operation throughput." << std::endl; 
   std::cout << "==========" << std::endl;
-
-  process<19>();
-  process<123456>();
-  //process<4096>();  
-  //process<1024>();  
+  process64<19>();
+  process32<19>();
+  process32<123456>();
+  process64<123456>();
 
 }
