@@ -27,13 +27,7 @@ template <uint32_t divisor> struct divide32 {
 
   // Fallback on multiply-add-shift
   //
-  // We need the fallback when
-  // ceiling(m/d)>=(1+1/N)*m/d
-  // or
-  // ceiling(m/d) * d >= (1+1/N)*m
-  // or
-  // m + d - m%d >= m + m/N
-  constexpr static bool need_fallback = (divisor - (m % divisor) >= m / N);
+  constexpr static bool need_fallback = (divisor - (m % divisor) >= m / N  + 1);
   constexpr static uint64_t c = need_fallback ? c_floor : c_ceiling;
 
   // To handle powers of two
@@ -93,13 +87,7 @@ template <uint64_t divisor> struct divide64 {
 
   // Fallback on multiply-add-shift
   //
-  // We need the fallback when
-  // ceiling(m/d)>=(1+1/N)*m/d
-  // or
-  // ceiling(m/d) * d >= (1+1/N)*m
-  // or
-  // m + d - m%d >= m + m/N
-  constexpr static bool need_fallback = (divisor - (m % divisor) >= m / N);
+  constexpr static bool need_fallback = (divisor - (m % divisor) >= m / N + 1);
   constexpr static uint64_t c = need_fallback ? c_floor : c_ceiling;
 
   // To handle powers of two
